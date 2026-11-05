@@ -260,6 +260,9 @@ async def varrer(cfg, buscas, registro=None):
                         continue
                     try:
                         brutos = await coletar(pg, url, js, espera)
+                        if not brutos:  # nuvem: Cloudflare barra as 1as páginas e libera depois (05/11/2026)
+                            await pg.wait_for_timeout(10000)
+                            brutos = await coletar(pg, url, js, espera)
                         bons = [a for a in map(parse, brutos) if a and sem_acento(cfg.get("local_contem", "")) in sem_acento(a["local"])
                                 and (oferta(a, tabela) if b.get("oferta")
                                                                         else passa_filtro(b, a["titulo"], a["preco"]))]
