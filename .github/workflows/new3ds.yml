@@ -1,0 +1,30 @@
+# Busca urgente: New 3DS / New 2DS na OLX de Manaus a cada ~5 min, aviso com @everyone no #preços.
+name: new3ds
+on:
+  schedule: [{cron: "*/5 * * * *"}]
+  workflow_dispatch:
+concurrency: new3ds
+permissions:
+  contents: write
+jobs:
+  varrer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install playwright truststore && python -m playwright install --with-deps chrome
+      - env: {WH: "${{ secrets.DISCORD_WEBHOOK }}"}
+        run: |
+          python - <<'PY'
+          import json, os
+          json.dump({"discord_webhook": os.environ["WH"], "telegram_chat_id": "discord", "pular_sites": ["Facebook"],
+                     "local_contem": "Manaus", "sem_ofertas": True, "prefixo": "🚨 @everyone **NEW 3DS/2DS À VENDA!**\n",
+                     "olx_caminho": "games/consoles-de-video-game/estado-am/regiao-de-manaus", "fb_cidade": "manaus"}, open("config.json", "w"))
+          PY
+      - run: xvfb-run -a python monitor.py
+        env: {MONITOR_DADOS: estado/new, MONITOR_BUSCAS: buscas-new.txt}
+      - name: salva estado
+        run: |
+          git config user.name buscapre-bot && git config user.email buscapre-bot@users.noreply.github.com
+          git add estado/new/vistos.json estado/new/anuncios.json
+          git diff --cached --quiet || (git commit -qm "estado new $(date -u +%FT%H:%M)" && (git push || (git pull --rebase && git push)))

@@ -20,7 +20,7 @@ if sys.stdout:  # pythonw (Agendador) não tem console
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CONFIG = os.path.join(BASE_DIR, "config.json")
-BUSCAS = os.path.join(BASE_DIR, "buscas.txt")
+BUSCAS = os.path.join(BASE_DIR, os.environ.get("MONITOR_BUSCAS", "buscas.txt"))  # nuvem: buscas-new.txt (New 3DS/2DS a cada 5 min)
 DADOS = os.environ.get("MONITOR_DADOS", BASE_DIR)  # na nuvem (GitHub Actions) o estado fica em estado/
 VISTOS = os.path.join(DADOS, "vistos.json")
 ANUNCIOS = os.path.join(DADOS, "anuncios.json")  # id -> dados do anúncio + msg_id no Telegram + status (ativo/vendido/removido)
@@ -255,7 +255,8 @@ async def varrer(cfg, buscas, registro=None):
         tabela = ler_ofertas()
         # pseudo-busca: categoria Consoles da OLX inteira, sem termo; só fica o que é oferta (alerta mesmo fora das buscas)
         # ponytail: Facebook fica de fora da varredura geral (busca sem termo não existe lá); entra só pelas buscas
-        for b in buscas + [{"nome": NOME_OFERTAS, "termos": [""], "oferta": True}]:
+        varredura = [] if cfg.get("sem_ofertas") else [{"nome": NOME_OFERTAS, "termos": [""], "oferta": True}]
+        for b in buscas + varredura:
             itens = achados.setdefault(b["nome"], {})
             for termo in b["termos"]:
                 q = urllib.parse.quote(termo)
@@ -371,7 +372,7 @@ def valor_txt(a):
 
 def avisar(cfg, a, busca, chat=None, texto=None):
     """Manda o anúncio novo, com foto sempre que der. Devolve (resposta, texto, tem_foto)."""
-    texto = texto or f"🆕 {a['site']} · {busca}\n{a['titulo']}\n💰 {valor_txt(a)}\n📍 {a['local']}\n{a['url']}"
+    texto = texto or cfg.get("prefixo", "") + f"🆕 {a['site']} · {busca}\n{a['titulo']}\n💰 {valor_txt(a)}\n📍 {a['local']}\n{a['url']}"
     base = {"chat_id": chat or cfg["telegram_chat_id"]}
     if a["img"]:
         try:
