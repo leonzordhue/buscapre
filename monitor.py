@@ -458,7 +458,7 @@ def main():
         assert not passa_filtro(b, "PS Vita", 800) and passa_filtro(b, "New 3ds", None)
         assert not passa_filtro(b, "Fonte carregador original Nintendo 3DS", 350)
         t = ler_ofertas()
-        assert modelo("Nintendo New 3DS XL", t)[2] == "New 3DS" and modelo("Nintendo 3ds", t)[2] == "3DS"
+        assert modelo("Nintendo New 3DS XL", t)[2] == "New 3DS XL" and modelo("new 3ds", t)[2] == "New 3DS" and modelo("Nintendo 3ds", t)[2] == "3DS"
         assert modelo("Bicicleta aro 29", t) is None
         for x in ("Fonte carregador Nintendo 3DS", "Capa para 3ds xl", "Jogo Pokemon X 3DS", "Carregador p/ 3DS",
                   "Controle PS3 original", "Case Nintendo Switch", "Star Fox 3D - jogo de 3DS", "PES 2013 - 3DS - loose",
