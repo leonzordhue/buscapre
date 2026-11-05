@@ -341,9 +341,15 @@ def discord(cfg, metodo, dados):
         corpo, u, verbo = {"username": "Buscapre", "content": (dados.get("text") or dados.get("caption") or "")[:2000]}, u + "?wait=true", "POST"
         if dados.get("photo"):
             corpo["embeds"] = [{"image": {"url": dados["photo"]}}]
-    req = urllib.request.Request(u, data=json.dumps(corpo).encode(), headers=h, method=verbo)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return {"ok": True, "result": {"message_id": json.load(r)["id"]}}
+    for tentativa in range(4):
+        req = urllib.request.Request(u, data=json.dumps(corpo).encode(), headers=h, method=verbo)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as r:
+                return {"ok": True, "result": {"message_id": json.load(r)["id"]}}
+        except urllib.error.HTTPError as e:  # 429: limite do webhook (~30/min); espera o que o Discord pedir
+            if e.code != 429 or tentativa == 3:
+                raise
+            time.sleep(float(json.load(e).get("retry_after", 5)) + 0.5)
 
 
 def telegram(cfg, metodo, dados):
