@@ -1,0 +1,7 @@
+# Uma busca por linha:
+#   termos separados por vírgula | preço mínimo | preço máximo | título deve conter (regex, sem acento)
+# Deixe vazio o que não quiser filtrar. O preço mínimo ajuda a descartar jogos e acessórios.
+# Para acrescentar outro produto, basta criar outra linha.
+
+nintendo 3ds, 3ds, 3ds xl, new 3ds, new 3ds xl | 300 | | 3\s?ds
+game boy, gameboy, game boy color, game boy advance | 200 | | game\s?boy

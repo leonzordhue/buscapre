@@ -1,0 +1,11 @@
+# só o PC: token, perfil do Chrome, estado e log locais
+config.json
+perfil_chrome/
+/vistos.json
+/anuncios.json
+*.log
+*.log.old
+*.tmp
+__pycache__/
+nuvem-teste/
+estado/monitor.log*

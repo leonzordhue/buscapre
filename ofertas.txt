@@ -1,0 +1,33 @@
+# Alerta de OFERTA BOA: o monitor varre todos os consoles à venda (OLX Consoles + Facebook) e,
+# se o preço estiver ATÉ o teto, manda alerta em destaque no grupo e no privado do Paulo,
+# mesmo que o modelo não esteja no buscas.txt.
+#   regex do modelo (sem acento, minúsculo) | teto em R$ | nome
+# Vale a PRIMEIRA linha que casar: deixe os modelos mais específicos em cima.
+# Tetos de 20/10/2026 são estimativa do Claude (só o PS3 = 300 veio do Paulo): ajuste à vontade.
+# Anúncio com "defeito", "não liga", "peças", "sucata" ou preço abaixo de 25% do teto (isca/troca) é ignorado.
+
+ps5|playstation\s*5|play\s*5                 | 2500 | PS5
+ps4|playstation\s*4|play\s*4                 | 900  | PS4
+ps3|playstation\s*3|play\s*3                 | 300  | PS3
+ps2|playstation\s*2|play\s*2                 | 200  | PS2
+ps\s*vita|psvita                             | 450  | PS Vita
+\bpsp\b                                      | 250  | PSP
+x\s*box\s*series?\s*x                        | 2500 | Xbox Series X
+x\s*box\s*series?\s*s                        | 1500 | Xbox Series S
+x\s*box\s*one                                | 700  | Xbox One
+x\s*box\s*360                                | 300  | Xbox 360
+swi?tc?h\s*oled                              | 1500 | Switch OLED
+swi?tc?h\s*lite                              | 800  | Switch Lite
+swi?tc?h                                     | 1100 | Switch
+wii\s*u                                      | 500  | Wii U
+\bwii\b                                      | 200  | Wii
+new\s*(nintendo\s*)?3\s?ds                   | 650  | New 3DS
+3\s?ds                                       | 500  | 3DS
+2\s?ds                                       | 350  | 2DS
+ds\s*lite|nintendo\s*ds\b|\bdsi\b            | 200  | Nintendo DS
+game\s*boy\s*advance|\bgba\b                 | 300  | Game Boy Advance
+game\s*boy                                   | 200  | Game Boy
+nintendo\s*64|\bn64\b                        | 400  | Nintendo 64
+super\s*nintendo|\bsnes\b                    | 400  | Super Nintendo
+game\s*cube|gamecube                         | 500  | GameCube
+mega\s*drive                                 | 250  | Mega Drive
