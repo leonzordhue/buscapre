@@ -17,6 +17,16 @@ const json = (o) => new Response(JSON.stringify(o), { headers: { "Content-Type":
 export default {
   async fetch(req, env, ctx) {
     if (req.method !== "POST") return new Response("Buscapre ok");
+    // /aviso: o Apps Script do Gmail (Leon Games) manda aqui; o Discord bloqueia o Google (erro 40333), o Worker repassa.
+    if (new URL(req.url).pathname === "/aviso") {
+      const { segredo, texto } = await req.json().catch(() => ({}));
+      if (!env.AVISO_SEGREDO || segredo !== env.AVISO_SEGREDO) return new Response("nao", { status: 401 });
+      const r = await fetch(env.DISCORD_WEBHOOK_PROPOSTAS + "?wait=true", {
+        method: "POST", headers: { "Content-Type": "application/json", "User-Agent": "Buscapre" },
+        body: JSON.stringify({ username: "Leon Games", content: String(texto).slice(0, 2000) }),
+      });
+      return new Response(String(r.status), { status: r.ok ? 200 : 502 });
+    }
     const corpo = await req.text();
     if (!(await assinaturaOk(req, corpo, env.DISCORD_PUBLIC_KEY))) return new Response("assinatura inválida", { status: 401 });
     const i = JSON.parse(corpo);
