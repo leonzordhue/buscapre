@@ -14,7 +14,26 @@ export async function assinaturaOk(req, corpo, chavePublica) {
 
 const json = (o) => new Response(JSON.stringify(o), { headers: { "Content-Type": "application/json" } });
 
+// O cron do GitHub não disparou no repo novo (05/11/2026): o Cloudflare marca o ritmo e manda o GitHub rodar.
+export function quais(minuto) {
+  return minuto % 15 < 5 ? ["new3ds.yml", "buscapre.yml"] : ["new3ds.yml"];
+}
+
+async function disparar(env, workflow, inputs) {
+  const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/${workflow}/dispatches`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "buscapre-worker" },
+    body: JSON.stringify(inputs ? { ref: "main", inputs } : { ref: "main" }),
+  });
+  if (r.status !== 204) console.log("GitHub", workflow, r.status, await r.text());
+}
+
 export default {
+  async scheduled(evento, env, ctx) {
+    const minuto = new Date(evento.scheduledTime).getUTCMinutes();
+    ctx.waitUntil(Promise.all(quais(minuto).map((w) => disparar(env, w))));
+  },
+
   async fetch(req, env, ctx) {
     if (req.method !== "POST") return new Response("Buscapre ok");
     // /aviso: o Apps Script do Gmail (Leon Games) manda aqui; o Discord bloqueia o Google (erro 40333), o Worker repassa.
@@ -33,11 +52,7 @@ export default {
     if (i.type === 1) return json({ type: 1 }); // PING do Discord ao salvar a URL
     if (i.type === 2 && i.data.name === "busca") {
       const termo = (i.data.options?.find((o) => o.name === "termo")?.value || "").trim().slice(0, 60);
-      ctx.waitUntil(fetch(`https://api.github.com/repos/${REPO}/actions/workflows/busca.yml/dispatches`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${env.GITHUB_TOKEN}`, Accept: "application/vnd.github+json", "User-Agent": "buscapre-worker" },
-        body: JSON.stringify({ ref: "main", inputs: { termo } }),
-      }).then(async (r) => { if (r.status !== 204) console.log("GitHub", r.status, await r.text()); }));
+      ctx.waitUntil(disparar(env, "busca.yml", { termo }));
       return json({ type: 4, data: { content: `🔎 Buscando **${termo}** na OLX de Manaus... os 10 mais recentes chegam aqui em ~4 min.` } });
     }
     return json({ type: 4, data: { content: "Comando desconhecido.", flags: 64 } });

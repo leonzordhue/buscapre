@@ -20,4 +20,10 @@ const av = (o) => w.fetch(new Request("https://x/aviso", { method: "POST", body:
 ok((await av({ segredo: "errado", texto: "oi" })).status === 401, "aviso sem segredo");
 chamadas.length = 0; globalThis.fetch = async (u, o) => { chamadas.push([u, JSON.parse(o.body)]); return new Response("{}", { status: 200 }); };
 ok((await av({ segredo: "s3", texto: "oi" })).status === 200 && chamadas[0][0] === "https://discord/wh?wait=true" && chamadas[0][1].content === "oi", "aviso");
+const { quais } = await import("./index.js");
+ok(quais(0).length === 2 && quais(5).length === 1 && quais(15).length === 2 && quais(50).length === 1, "ritmo");
+chamadas.length = 0; globalThis.fetch = async (u, o) => { chamadas.push([u, JSON.parse(o.body)]); return new Response(null, { status: 204 }); };
+await w.scheduled({ scheduledTime: Date.UTC(2026, 10, 5, 12, 30) }, env, { waitUntil: (p) => p });
+await new Promise((r) => setTimeout(r, 10));
+ok(chamadas.length === 2 && chamadas.every(([u, b]) => b.ref === "main" && !b.inputs), "cron dispara new3ds + buscapre");
 console.log("teste-worker ok");

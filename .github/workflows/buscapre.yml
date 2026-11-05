@@ -1,7 +1,6 @@
-# Buscapre na nuvem: OLX (Manaus) a cada ~15 min, aviso no Discord. Facebook fica no PC (servidor cai no login).
+# Buscapre na nuvem: OLX (Manaus) a cada 15 min (disparado pelo cron do Worker Cloudflare), aviso no Discord. Facebook fica no PC (servidor cai no login).
 name: buscapre
 on:
-  schedule: [{cron: "*/15 * * * *"}]
   workflow_dispatch:
 concurrency: buscapre
 permissions:

@@ -1,7 +1,6 @@
-# Busca urgente: New 3DS / New 2DS na OLX de Manaus a cada ~5 min, aviso com @everyone no #preços.
+# Busca urgente: New 3DS / New 2DS na OLX de Manaus a cada 5 min (disparado pelo cron do Worker Cloudflare), aviso com @everyone no #preços.
 name: new3ds
 on:
-  schedule: [{cron: "*/5 * * * *"}]
   workflow_dispatch:
 concurrency: new3ds
 permissions:
