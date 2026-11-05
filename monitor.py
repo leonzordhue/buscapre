@@ -413,9 +413,11 @@ def texto_baixa(r, antes):
 
 
 def avisar_baixa(cfg, r, antes):
-    """Preço caiu num anúncio já avisado: responde à mensagem original no grupo."""
-    return telegram(cfg, "sendMessage", {"chat_id": r.get("chat") or cfg["telegram_chat_id"], "text": texto_baixa(r, antes),
-                                         "reply_to_message_id": r["msg_id"], "allow_sending_without_reply": "true"})
+    """Preço caiu num anúncio acompanhado: responde à mensagem original, se houver; senão manda avulso (05/11/2026)."""
+    dados = {"chat_id": r.get("chat") or cfg["telegram_chat_id"], "text": texto_baixa(r, antes)}
+    if r.get("msg_id"):
+        dados.update(reply_to_message_id=r["msg_id"], allow_sending_without_reply="true")
+    return telegram(cfg, "sendMessage", dados)
 
 
 def telegram_ok(cfg):
@@ -534,7 +536,7 @@ def main():
             antes = r.get("preco")
             if a["preco"] is not None and antes and a["preco"] < antes:  # baixou o preço (pedido do Paulo, 20/10/2026)
                 r["preco"] = a["preco"]
-                if r.get("msg_id") and telegram_ok(cfg):
+                if telegram_ok(cfg):  # Paulo: avisa qualquer queda, não só de anúncio já avisado (05/11/2026)
                     try:
                         avisar_baixa(cfg, r, antes)
                         novos_total += 1
