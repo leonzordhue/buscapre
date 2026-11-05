@@ -21,9 +21,11 @@ jobs:
                      "local_contem": "Manaus", "sem_ofertas": True, "prefixo": "🚨 @everyone **NEW 3DS/2DS À VENDA!**\n",
                      "olx_caminho": "games/consoles-de-video-game/estado-am/regiao-de-manaus", "fb_cidade": "manaus"}, open("config.json", "w"))
           PY
-      - run: xvfb-run -a python monitor.py
+      - run: xvfb-run -a python -u monitor.py
+        timeout-minutes: 7
         env: {MONITOR_DADOS: estado/new, MONITOR_BUSCAS: buscas-new.txt}
       - name: salva estado
+        if: always()
         run: |
           git config user.name buscapre-bot && git config user.email buscapre-bot@users.noreply.github.com
           git add estado/new/vistos.json estado/new/anuncios.json

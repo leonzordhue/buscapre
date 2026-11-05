@@ -9,7 +9,7 @@ permissions:
 jobs:
   varrer:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
       - run: pip install playwright truststore && python -m playwright install --with-deps chrome
@@ -22,9 +22,11 @@ jobs:
                      "local_contem": "Manaus", "olx_caminho": "games/consoles-de-video-game/estado-am/regiao-de-manaus",
                      "fb_cidade": "manaus"}, open("config.json", "w"))
           PY
-      - run: xvfb-run -a python monitor.py
+      - run: xvfb-run -a python -u monitor.py
+        timeout-minutes: 22
         env: {MONITOR_DADOS: estado}
       - name: salva estado
+        if: always()
         run: |
           git config user.name buscapre-bot && git config user.email buscapre-bot@users.noreply.github.com
           git add estado/vistos.json estado/anuncios.json

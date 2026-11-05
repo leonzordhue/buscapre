@@ -430,6 +430,12 @@ def avisar_baixa(cfg, r, antes):
     return telegram(cfg, "sendMessage", dados)
 
 
+def gravar(vistos, registro):
+    """Salva a cada aviso: se a rodada for cortada (timeout na nuvem, 05/11/2026), não reavisa tudo na próxima."""
+    salvar_json(VISTOS, vistos)
+    salvar_json(ANUNCIOS, registro)
+
+
 def telegram_ok(cfg):
     return bool(cfg.get("discord_webhook") or (cfg.get("telegram_token") and cfg.get("telegram_chat_id")))
 
@@ -569,6 +575,8 @@ def main():
                 resp, texto, foto = avisar(cfg, a, nome)
                 registro[a["id"]].update(msg_id=resp["result"]["message_id"], chat=cfg["telegram_chat_id"], texto=texto, foto=foto)
                 ja.add(a["id"])
+                vistos[nome] = list(ja)
+                gravar(vistos, registro)
                 novos_total += 1
                 paulo = cfg.get("telegram_chat_id_paulo")
                 if urgente(a) and paulo and paulo != cfg["telegram_chat_id"] and not registro[a["id"]].get("urgente_privado"):
@@ -601,6 +609,8 @@ def main():
                     registro[a["id"]].update(msg_id=resp["result"]["message_id"], chat=chat, texto=texto, foto=foto)
                 time.sleep(1)
             ja.add(a["id"])
+            vistos[NOME_OFERTAS] = list(ja)
+            gravar(vistos, registro)
             novos_total += 1
             log(f"OFERTA ({o[2]} <= {o[1]:.0f}): {a['site']} {a['titulo']} {a['preco']} {a['url']}")
         except Exception as e:
