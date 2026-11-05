@@ -92,6 +92,13 @@ RE_ACESSORIO = re.compile(
     r"|fone|grip|dock|base|faco)\b"
     r"|\b(jogo (de|do|para|pra)|loose|so o jogo|apenas o jogo|desbloqueio)\b"  # "midia fisica" saiu: "PS5 slim mídia física" é console (05/11/2026)
     r"|\b(para|pra|p/|compativel com)\s*(o |a )?(nintendo|new|playstation|ps\s?\d|xbox|[23]\s?ds|switch|wii|game\s*boy|psp|ds\b|super)")
+RE_URGENTE = re.compile(r"\bnew\s*(nintendo\s*)?[23]\s?ds")  # New 3DS/2DS: raro em Manaus, alerta urgente
+
+
+def urgente(a):
+    return bool(RE_URGENTE.search(sem_acento(a.get("titulo") or "")))
+
+
 RE_DEFEITO = re.compile(r"^\W*compro|defeito|nao liga|nao funciona|nao le\b|para pecas|pra pecas|retirada de pecas|sucata"
                         r"|quebrad|\bbloquead")  # \b: "desbloqueado" é console bom
 
@@ -372,7 +379,9 @@ def valor_txt(a):
 
 def avisar(cfg, a, busca, chat=None, texto=None):
     """Manda o anúncio novo, com foto sempre que der. Devolve (resposta, texto, tem_foto)."""
-    texto = texto or cfg.get("prefixo", "") + f"🆕 {a['site']} · {busca}\n{a['titulo']}\n💰 {valor_txt(a)}\n📍 {a['local']}\n{a['url']}"
+    # New 3DS/2DS: destaque urgente (pedido do Paulo, 05/11/2026); o workflow new3ds já traz @everyone no prefixo
+    urg = "🚨🚨 URGENTE · NEW 3DS/2DS 🚨🚨\n" if urgente(a) and not cfg.get("prefixo") else ""
+    texto = texto or urg + cfg.get("prefixo", "") + f"🆕 {a['site']} · {busca}\n{a['titulo']}\n💰 {valor_txt(a)}\n📍 {a['local']}\n{a['url']}"
     base = {"chat_id": chat or cfg["telegram_chat_id"]}
     if a["img"]:
         try:
@@ -498,6 +507,8 @@ def main():
         assert situacao("Facebook", 200, "Facebook", "Entrar\nEste conteúdo não está disponível no momento\n") == "removido"
         assert situacao("Facebook", 200, "Nintendo 3ds | Facebook Marketplace", "Vestuário\nVendido\n\xa0\n · Nintendo 3ds\nR$800") == "vendido"
         assert situacao("Facebook", 200, "Nintendo 3ds | Facebook Marketplace", "Categorias\nVendido por\nR$800") == "ativo"
+        assert urgente({"titulo": "Nintendo New 2DS XL"}) and urgente({"titulo": "NEW NINTENDO 3DS"})
+        assert not urgente({"titulo": "Nintendo 3DS XL"}) and not urgente({"titulo": "Renew 3ds"})
         print("selftest ok")
         return
     if "--chat-id" in sys.argv:
@@ -559,6 +570,13 @@ def main():
                 registro[a["id"]].update(msg_id=resp["result"]["message_id"], chat=cfg["telegram_chat_id"], texto=texto, foto=foto)
                 ja.add(a["id"])
                 novos_total += 1
+                paulo = cfg.get("telegram_chat_id_paulo")
+                if urgente(a) and paulo and paulo != cfg["telegram_chat_id"] and not registro[a["id"]].get("urgente_privado"):
+                    try:  # cópia no privado: é o que faz o celular tocar no Telegram
+                        avisar(cfg, a, nome, chat=paulo)
+                        registro[a["id"]]["urgente_privado"] = True
+                    except Exception as e:
+                        log(f"ERRO Telegram (urgente no privado): {e}")
                 log(f"AVISADO{' com foto' if foto else ' SEM foto'}: {a['site']} {a['titulo']} {a['preco']} {a['url']}")
                 time.sleep(1)
             except Exception as e:
