@@ -32,7 +32,7 @@ def _tg_longo(metodo, dados, timeout):
         return json.load(r)
 
 
-async def pesquisar(termo, regiao):
+async def pesquisar(termo, regiao, sites=("OLX", "Facebook")):
     from playwright.async_api import async_playwright
     q = urllib.parse.quote(termo)
     _, olx, fb = REGIOES[regiao]
@@ -55,7 +55,7 @@ async def pesquisar(termo, regiao):
         # com janela (fora da tela): headless leva 403 da OLX
         nav = await p.chromium.launch(channel="chrome", headless=False,
                                       args=["--disable-blink-features=AutomationControlled", "--window-position=-2400,-2400"])
-        for site, url, js, parse, espera in fontes:
+        for site, url, js, parse, espera in [f for f in fontes if f[0] in sites]:
             pg = await nav.new_page(locale="pt-BR")
             try:
                 ads = [a for a in map(parse, await m.coletar(pg, url, js, espera)) if serve(a)]

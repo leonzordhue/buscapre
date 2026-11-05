@@ -1,0 +1,17 @@
+# /busca do Discord: o Worker (Cloudflare) dispara com o termo; resultado vai para o #preços.
+name: busca
+on:
+  workflow_dispatch:
+    inputs:
+      termo: {description: "o que buscar", required: true}
+jobs:
+  busca:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install playwright truststore && python -m playwright install --with-deps chrome
+      - env: {WH: "${{ secrets.DISCORD_WEBHOOK }}"}
+        run: python -c "import json,os; json.dump({'discord_webhook':os.environ['WH'],'telegram_chat_id':'discord','olx_caminho_busca':'estado-am/regiao-de-manaus'}, open('config.json','w'))"
+      - run: xvfb-run -a python busca.py "$TERMO"
+        env: {TERMO: "${{ inputs.termo }}", MONITOR_DADOS: /tmp}

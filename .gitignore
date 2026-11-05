@@ -9,3 +9,6 @@ perfil_chrome/
 __pycache__/
 nuvem-teste/
 estado/monitor.log*
+
+worker/node_modules/
+worker/.wrangler/
