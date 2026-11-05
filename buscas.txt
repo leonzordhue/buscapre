@@ -4,4 +4,12 @@
 # Para acrescentar outro produto, basta criar outra linha.
 
 nintendo 3ds, 3ds, 3ds xl, new 3ds, new 3ds xl | 300 | | 3\s?ds
-game boy, gameboy, game boy color, game boy advance | 200 | | game\s?boy
+2ds, new 2ds xl | 250 | | 2\s?ds
+nintendo ds, dsi, ds lite | 150 | | \bdsi?\b|ds\s*lite
+game boy, gameboy, game boy color, game boy advance | 200 | | game\s?boy|\bgba\b
+# 05/11/2026 (Paulo): todos os consoles. Mínimos estimados para cortar jogos/controles; ajuste se precisar.
+ps5, playstation 5 | 1500 | | ps\s?5|playstation\s?5|play\s?5
+ps4, playstation 4 | 500 | | ps\s?4|playstation\s?4|play\s?4
+ps2, playstation 2 | 150 | | ps\s?2|playstation\s?2|play\s?2
+ps1, psone, playstation 1 | 100 | | ps\s?(1|one)\b|playstation\s?(1|one)\b|\bpsx\b
+xbox 360 | 200 | | x\s?box\s?360

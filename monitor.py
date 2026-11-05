@@ -71,7 +71,7 @@ def ler_buscas():
             linha = linha.split("#", 1)[0].strip()
             if not linha:
                 continue
-            partes = [p.strip() for p in linha.split("|")] + ["", "", ""]
+            partes = [p.strip() for p in linha.split("|", 3)] + ["", "", ""]  # a regex (4ª coluna) pode ter '|'
             termos = [t.strip() for t in partes[0].split(",") if t.strip()]
             buscas.append({
                 "nome": termos[0],
@@ -90,7 +90,7 @@ RE_ACESSORIO = re.compile(
     r"^\W*(fontes?|carregador(es)?|capas?|case|bolsa|pelicula|caneta|cabos?|controles?|adaptador|cartucho|jogos?|fita"
     r"|cd|dvd|pecas?|carcaca|tela|bateria|suporte|cartao|skin|stylus|r4|botao|botoes|lente|cooler|hd|volante|headset"
     r"|fone|grip|dock|base|faco)\b"
-    r"|\b(jogo (de|do|para|pra)|loose|midia fisica|so o jogo|apenas o jogo|desbloqueio)\b"
+    r"|\b(jogo (de|do|para|pra)|loose|so o jogo|apenas o jogo|desbloqueio)\b"  # "midia fisica" saiu: "PS5 slim mídia física" é console (05/11/2026)
     r"|\b(para|pra|p/|compativel com)\s*(o |a )?(nintendo|new|playstation|ps\s?\d|xbox|[23]\s?ds|switch|wii|game\s*boy|psp|ds\b|super)")
 RE_DEFEITO = re.compile(r"^\W*compro|defeito|nao liga|nao funciona|nao le\b|para pecas|pra pecas|retirada de pecas|sucata"
                         r"|quebrad|\bbloquead")  # \b: "desbloqueado" é console bom
