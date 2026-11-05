@@ -32,24 +32,31 @@ def _tg_longo(metodo, dados, timeout):
         return json.load(r)
 
 
+def grafias(termo):
+    """A OLX busca a palavra exata: "psvita" acha 1 anúncio em Manaus, "ps vita" acha 36 (05/11/2026)."""
+    t = " ".join(termo.lower().split())
+    separado = re.sub(r"^(ps|xbox)(?=[a-z])", r"\1 ", t)  # psvita -> ps vita, xboxone -> xbox one
+    junto = re.sub(r"^(ps|xbox) (?=[a-z])", r"\1", t)  # ps vita -> psvita (ps 2 e xbox 360 ficam)
+    return list(dict.fromkeys([t, separado, junto]))
+
+
 async def pesquisar(termo, regiao, sites=("OLX", "Facebook")):
     from playwright.async_api import async_playwright
-    q = urllib.parse.quote(termo)
     _, olx, fb = REGIOES[regiao]
     tabela = m.ler_ofertas()
-    mod = m.modelo(termo, tabela)  # termo é console? então só a categoria Consoles da OLX, título do modelo, sem acessório
-    if mod:
-        olx = "games/consoles-de-video-game/" + olx
+    mod = m.modelo(termo, tabela)  # termo é console? título tem que citar o modelo, sem acessório
 
     def serve(a):
         return a and a["titulo"] and (not mod or (mod[0].search(m.sem_acento(a["titulo"]))
-                                                  and not m.acessorio(a["titulo"], tabela)))
+                                                  and not m.acessorio(a["titulo"], tabela)
+                                                  and not re.search(r"/(jogos|acessorios)-de-video-game/", a["url"])))
 
-    fontes = [
-        ("OLX", f"https://www.olx.com.br/{olx}?q={q}&sf=1", m.JS_OLX, m.parse_olx, 5000),
-        ("Facebook", f"https://www.facebook.com/marketplace/{fb}/search?query={q}"
-                     f"&sortBy=creation_time_descend&exact=false", m.JS_FB, m.parse_fb, 7000),
-    ]
+    # console: categoria Consoles (senão os jogos lotam a 1a página) e o site todo (vendedor que não põe na categoria)
+    caminhos = ["games/consoles-de-video-game/" + olx, olx] if mod else [olx]
+    fontes = [("OLX", f"https://www.olx.com.br/{c}?q={urllib.parse.quote(g)}&sf=1", m.JS_OLX, m.parse_olx, 5000)
+              for g in (grafias(termo) if mod else [termo]) for c in caminhos]
+    fontes.append(("Facebook", f"https://www.facebook.com/marketplace/{fb}/search?query={urllib.parse.quote(termo)}"
+                               f"&sortBy=creation_time_descend&exact=false", m.JS_FB, m.parse_fb, 7000))
     saida = {}
     async with async_playwright() as p:
         # com janela (fora da tela): headless leva 403 da OLX
@@ -59,12 +66,16 @@ async def pesquisar(termo, regiao, sites=("OLX", "Facebook")):
             pg = await nav.new_page(locale="pt-BR")
             try:
                 ads = [a for a in map(parse, await m.coletar(pg, url, js, espera)) if serve(a)]
-                saida[site] = ads[:MAX_RESULTADOS]
+                junto = (saida.get(site) or []) + ads
+                saida[site] = list({a["url"]: a for a in junto}.values())
             except Exception as e:
-                saida[site] = None
+                saida.setdefault(site, None)
                 m.log(f"BOT erro {site} '{termo}': {str(e).splitlines()[0]}")
             await pg.close()
         await nav.close()
+    for site, ads in saida.items():
+        if ads:  # mais recentes primeiro (id maior = anúncio mais novo), juntando as buscas
+            saida[site] = sorted(ads, key=lambda a: int(re.sub(r"\D", "", a["id"]) or 0), reverse=True)[:MAX_RESULTADOS]
     return saida
 
 
