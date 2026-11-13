@@ -20,7 +20,7 @@ x\s*box\s*series?\s*s                        | 0    | Xbox Series S
 x\s*box\s*one                                | 0    | Xbox One
 x\s*box\s*360                                | 0    | Xbox 360
 swi?tc?h\s*oled                              | 1500 | Switch OLED
-swi?tc?h\s*lite                              | 800  | Switch Lite
+swi?tc?h\s*lite                              | 799  | Switch Lite
 swi?tc?h                                     | 1100 | Switch
 wii\s*u                                      | 500  | Wii U
 \bwii\b                                      | 200  | Wii

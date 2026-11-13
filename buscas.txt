@@ -11,6 +11,8 @@ nintendo dsi, nitendo dsi, dsi, dsi xl, nintendo dsi xl | 150 | | \bdsi\b
 nintendo ds lite, nitendo ds lite, ds lite, nintendo ds, nitendo ds | 150 | | ds\s*lite|\bds\b
 game boy color, gameboy color, game boy colour, gbc | 200 | | game\s?boy\s*colou?r|\bgbc\b
 game boy advance, gameboy advance, gba, gba sp, game boy advance sp | 200 | | game\s?boy\s*advance|\bgba\b
+# 13/11/2026 (Paulo): Switch Lite só abaixo de R$ 800. Mínimo 300 corta jogo/capa.
+switch lite, nintendo switch lite, nitendo switch lite, swith lite | 300 | 799 | swi?tc?h\s*lite
 # 05/11/2026 (Paulo): outros consoles. Mínimos estimados para cortar jogos/controles; ajuste se precisar.
 ps2, playstation 2 | 150 | | ps\s?2|playstation\s?2|play\s?2
 ps1, psone, playstation 1 | 100 | | ps\s?(1|one)\b|playstation\s?(1|one)\b|\bpsx\b
