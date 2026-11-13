@@ -91,8 +91,8 @@ RE_ACESSORIO = re.compile(
     r"|cd|dvd|pecas?|carcaca|tela|bateria|suporte|cartao|skin|stylus|r4|botao|botoes|lente|cooler|hd|volante|headset"
     r"|fone|grip|dock|base|faco)\b"
     r"|\b(jogo (de|do|para|pra)|loose|so o jogo|apenas o jogo|desbloqueio)\b"  # "midia fisica" saiu: "PS5 slim mídia física" é console (05/11/2026)
-    r"|\b(para|pra|p/|compativel com)\s*(o |a )?(nintendo|new|playstation|ps\s?\d|xbox|[23]\s?ds|switch|wii|game\s*boy|psp|ds\b|super)")
-RE_URGENTE = re.compile(r"\bnew\s*(nintendo\s*)?[23]\s?ds")  # New 3DS/2DS: raro em Manaus, alerta urgente
+    r"|\b(para|pra|p/|compativel com)\s*(o |a )?(nin?tendo|new|playstation|ps\s?\d|xbox|[23]\s?ds|switch|wii|game\s*boy|psp|ds\b|super)")
+RE_URGENTE = re.compile(r"\bnew\s*(nin?tendo\s*)?[23]\s?ds")  # nin?tendo: aceita "nitendo" escrito errado  # New 3DS/2DS: raro em Manaus, alerta urgente
 
 
 def urgente(a):

@@ -1,2 +1,2 @@
 # Busca URGENTE (nuvem, a cada ~5 min): só New 3DS / New 2DS, aviso com @everyone. Pedido do Paulo, 05/11/2026.
-new 3ds, new 3ds xl, new 2ds, new 2ds xl, new nintendo 3ds | 250 | | new\s*(nintendo\s*)?[23]\s?ds
+new 3ds, new 3ds xl, new 2ds, new 2ds xl, new nintendo 3ds, new nitendo 3ds, new nintendo 2ds | 250 | | new\s*(nin?tendo\s*)?[23]\s?ds
